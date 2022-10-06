@@ -1,11 +1,17 @@
 import React from 'react';
 import RowCalc from "./component/RowCalc";
-import {Button} from "@mui/material";
+import {Box, Button, Container, Grid} from "@mui/material";
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 interface MyProps {
 };
 
 interface MyState {
-    rowCalc:Array<any>
+    rowCalc:Array<any>;
+    total: number;
 };
 
 class App extends React.Component<MyProps, MyState> {
@@ -16,10 +22,11 @@ class App extends React.Component<MyProps, MyState> {
                 id: 0,
                 row: {
                     operator: "plus",
-                    value: "1",
+                    value: 0,
                     disable:false
                 }
-            }]
+            }],
+            total:0
         }
 
     }
@@ -33,7 +40,7 @@ class App extends React.Component<MyProps, MyState> {
             id: max + 1,
             row: {
                 operator:"plus",
-                value: "1",
+                value: 0,
                 disable:false
             }
         }
@@ -41,60 +48,87 @@ class App extends React.Component<MyProps, MyState> {
         this.setState({
             rowCalc: this.state.rowCalc
         }, () => {
-            this.calculateTotal()
+           // this.calculateTotal()
         });
     }
     removeRow = (idRow:number) => {
-        let removeRow = this.state.rowCalc.filter((x: any) => x.id !== idRow);
+        const removeRow = this.state.rowCalc.filter((x: any) => x.id !== idRow);
         console.log('removeRow->',removeRow)
-        this.setState({rowCalc: removeRow}, () => {})
+        this.setState({rowCalc: removeRow}, () => {
+            this.calculateTotal()
+        })
     }
 
-    valueChange= (obj:any) =>{
-        this.state.rowCalc.filter((x: any) => {
+    valueChange = (obj:any) =>{
+        this.state.rowCalc.map((x: any) => {
             if (x.id === obj.id) {
-                x.value = obj.value
+                x.row.value = obj.row.value
             }
         });
-        this.calculateTotal()
-        // this.setState({
-        //     rowCalc: this.state.rowCalc
-        // }, () => {
-        //     this.calculateTotal()
-        // });
-        console.log('obj in app',obj)
-        console.log('this.state.rowCalc',this.state.rowCalc)
-
+        this.setState({rowCalc: this.state.rowCalc}, () => {
+              this.calculateTotal()
+        })
     }
+
+    operatorChange = (obj:any) =>{
+        this.state.rowCalc.map((x: any) => {
+            if (x.id === obj.id) {
+                x.row.operator = obj.row.operator
+            }
+        });
+        this.setState({rowCalc: this.state.rowCalc}, () => {
+            this.calculateTotal()
+        })
+    }
+
     calculateTotal = ()=>{
-        let total = 0;
-        this.state.rowCalc.map((x:any)=>{
+        console.log('this.state.rowCalc in calculate->', this.state.rowCalc)
+        let totale = 0
+        this.state.rowCalc.forEach((x:any)=>{
             if(x.row.operator === "plus"){
-                total = total + parseInt(x.row.value)
+                totale += x.row.value
+                // console.log('totale+->', totale)
+                // console.log('x.row.value->', x.row.value)
             }else{
-                total = total - parseInt(x.row.value)
+                totale -= x.row.value
             }
         })
-        console.log(total)
+        //console.log('totale->', totale)
+        this.setState({total: totale}, () => {
+            console.log('totale->', this.state.total)
+        })
+
     }
 
     render() {
         return (
-            <div className={'app-container'}>
-                <input type={"button"} onClick={this.addRow} value={"aggiungi riga"}/>
-                ciao
-                {
-                    this.state.rowCalc.map((infoRow: any, index: number) =>
-                        <div className={'ciaop'}>
-                            <RowCalc valueCallback={this.valueChange}
-                                     obj={infoRow}
-                            ></RowCalc>
-                            <input type={"button"} value={'DELETE'} onClick={() =>this.removeRow(infoRow.id)}/>
-                        </div>
+            <Container maxWidth="sm" className={"app-container"}>
+                <Grid container>
+                    <Grid item xs={12} textAlign={'center'}>
+                        <h1>React Challenge</h1>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button variant="contained" onClick={this.addRow}>Add Row</Button>
+                        {/*<input type={"button"} onClick={this.addRow} value={"aggiungi riga"}/>*/}
+                    </Grid>
+                </Grid>
+                        {
+                            this.state.rowCalc.map((infoRow: any, index: number) =>
+                                    <RowCalc valueCallback={this.valueChange}
+                                             operatorCallback={this.operatorChange}
+                                             removeCallback={this.removeRow}
+                                             obj={infoRow}
+                                             totalObj={this.state.rowCalc.length}
+                                    ></RowCalc>
+                            )
+                        }
+                <Grid container>
+                    <Grid item xs={12}>
+                        totale {this.state.total}
+                    </Grid>
+                </Grid>
 
-                  )
-                }
-            </div>
+            </Container>
         );
     }
 }
