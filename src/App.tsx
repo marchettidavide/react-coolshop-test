@@ -1,46 +1,47 @@
 import React from 'react';
 import RowCalc from "./component/RowCalc";
-import {Box, Button, Container, Grid} from "@mui/material";
+import {Button, Container, Grid} from "@mui/material";
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import {Row} from "./model/interface";
 
 interface MyProps {
-};
+}
 
 interface MyState {
-    rowCalc:Array<any>;
+    rowCalc: Array<Row>;
     total: number;
-};
+}
 
 class App extends React.Component<MyProps, MyState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            rowCalc:[{
+            rowCalc: [{
                 id: 0,
                 row: {
                     operator: "plus",
                     value: 0,
-                    disable:false
+                    disable: false
                 }
             }],
-            total:0
+            total: 0
         }
     }
 
     addRow = () => {
-        const ids = this.state.rowCalc.map((object: any) => {
+        const ids = this.state.rowCalc.map((object: Row) => {
             return object.id;
         });
         const max = Math.max(...ids);
-        let data: any = {
+        let data: Row = {
             id: max + 1,
             row: {
-                operator:"plus",
+                operator: "plus",
                 value: 0,
-                disable:false
+                disable: false
             }
         }
         this.state.rowCalc.push(data);
@@ -48,16 +49,16 @@ class App extends React.Component<MyProps, MyState> {
             rowCalc: this.state.rowCalc
         });
     }
-    removeRow = (idRow:number) => {
-        const removeRow = this.state.rowCalc.filter((x: any) => x.id !== idRow);
-        console.log('removeRow->',removeRow)
+
+    removeRow = (idRow: number) => {
+        const removeRow = this.state.rowCalc.filter((x: Row) => x.id !== idRow);
         this.setState({rowCalc: removeRow}, () => {
             this.calculateTotal()
         })
     }
 
-    disabledRow = (idRow:number) => {
-        this.state.rowCalc.map((x: any) => {
+    disabledRow = (idRow: number) => {
+        this.state.rowCalc.map((x: Row) => {
             if (x.id === idRow) {
                 x.row.disable = !x.row.disable
             }
@@ -67,19 +68,19 @@ class App extends React.Component<MyProps, MyState> {
         })
     }
 
-    valueChange = (obj:any) =>{
+    valueChange = (obj: any) => {
         this.state.rowCalc.map((x: any) => {
             if (x.id === obj.id) {
                 x.row.value = obj.row.value
             }
         });
         this.setState({rowCalc: this.state.rowCalc}, () => {
-              this.calculateTotal()
+            this.calculateTotal()
         })
     }
 
-    operatorChange = (obj:any) =>{
-        this.state.rowCalc.map((x: any) => {
+    operatorChange = (obj: Row) => {
+        this.state.rowCalc.map((x: Row) => {
             if (x.id === obj.id) {
                 x.row.operator = obj.row.operator
             }
@@ -89,41 +90,41 @@ class App extends React.Component<MyProps, MyState> {
         })
     }
 
-    calculateTotal = ()=>{
+    calculateTotal = () => {
         let totale = 0
-        this.state.rowCalc.forEach((x:any)=>{
-            if(x.row.operator === "plus" && !x.row.disable ){
+        this.state.rowCalc.forEach((x: Row) => {
+            if (x.row.operator === "plus" && !x.row.disable) {
                 totale += x.row.value
-            }else if(x.row.operator === "minus" && !x.row.disable ) {
+            } else if (x.row.operator === "minus" && !x.row.disable) {
                 totale -= x.row.value
             }
         })
         this.setState({total: totale})
-
     }
 
     render() {
         return (
             <Container maxWidth="sm" className={"app-container"}>
                 <Grid container>
-                    <Grid item xs={12} textAlign={'center'}>
+                    <Grid item xs={12} textAlign={"center"}>
                         <h1>React Challenge</h1>
                     </Grid>
                     <Grid item xs={12}>
                         <Button variant="contained" onClick={this.addRow}>Add Row</Button>
                     </Grid>
                 </Grid>
-                        {
-                            this.state.rowCalc.map((infoRow: any, index: number) =>
-                                    <RowCalc valueCallback={this.valueChange}
-                                             operatorCallback={this.operatorChange}
-                                             removeCallback={this.removeRow}
-                                             disabledCallback={this.disabledRow}
-                                             obj={infoRow}
-                                             totalObj={this.state.rowCalc.length}
-                                    ></RowCalc>
-                            )
-                        }
+                {
+                    this.state.rowCalc.map((infoRow: Row, index: number) =>
+                        <RowCalc valueCallback={this.valueChange}
+                                 operatorCallback={this.operatorChange}
+                                 removeCallback={this.removeRow}
+                                 disabledCallback={this.disabledRow}
+                                 obj={infoRow}
+                                 totalObj={this.state.rowCalc.length}
+                                 key={index}
+                        ></RowCalc>
+                    )
+                }
                 <Grid container>
                     <Grid item xs={12}>
                         <h1>Total: {this.state.total}</h1>
