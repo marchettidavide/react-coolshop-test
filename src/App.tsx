@@ -28,7 +28,6 @@ class App extends React.Component<MyProps, MyState> {
             }],
             total:0
         }
-
     }
 
     addRow = () => {
@@ -47,14 +46,23 @@ class App extends React.Component<MyProps, MyState> {
         this.state.rowCalc.push(data);
         this.setState({
             rowCalc: this.state.rowCalc
-        }, () => {
-           // this.calculateTotal()
         });
     }
     removeRow = (idRow:number) => {
         const removeRow = this.state.rowCalc.filter((x: any) => x.id !== idRow);
         console.log('removeRow->',removeRow)
         this.setState({rowCalc: removeRow}, () => {
+            this.calculateTotal()
+        })
+    }
+
+    disabledRow = (idRow:number) => {
+        this.state.rowCalc.map((x: any) => {
+            if (x.id === idRow) {
+                x.row.disable = !x.row.disable
+            }
+        });
+        this.setState({rowCalc: this.state.rowCalc}, () => {
             this.calculateTotal()
         })
     }
@@ -82,21 +90,15 @@ class App extends React.Component<MyProps, MyState> {
     }
 
     calculateTotal = ()=>{
-        console.log('this.state.rowCalc in calculate->', this.state.rowCalc)
         let totale = 0
         this.state.rowCalc.forEach((x:any)=>{
-            if(x.row.operator === "plus"){
+            if(x.row.operator === "plus" && !x.row.disable ){
                 totale += x.row.value
-                // console.log('totale+->', totale)
-                // console.log('x.row.value->', x.row.value)
-            }else{
+            }else if(x.row.operator === "minus" && !x.row.disable ) {
                 totale -= x.row.value
             }
         })
-        //console.log('totale->', totale)
-        this.setState({total: totale}, () => {
-            console.log('totale->', this.state.total)
-        })
+        this.setState({total: totale})
 
     }
 
@@ -109,7 +111,6 @@ class App extends React.Component<MyProps, MyState> {
                     </Grid>
                     <Grid item xs={12}>
                         <Button variant="contained" onClick={this.addRow}>Add Row</Button>
-                        {/*<input type={"button"} onClick={this.addRow} value={"aggiungi riga"}/>*/}
                     </Grid>
                 </Grid>
                         {
@@ -117,6 +118,7 @@ class App extends React.Component<MyProps, MyState> {
                                     <RowCalc valueCallback={this.valueChange}
                                              operatorCallback={this.operatorChange}
                                              removeCallback={this.removeRow}
+                                             disabledCallback={this.disabledRow}
                                              obj={infoRow}
                                              totalObj={this.state.rowCalc.length}
                                     ></RowCalc>
@@ -124,7 +126,7 @@ class App extends React.Component<MyProps, MyState> {
                         }
                 <Grid container>
                     <Grid item xs={12}>
-                        totale {this.state.total}
+                        <h1>Total: {this.state.total}</h1>
                     </Grid>
                 </Grid>
 
