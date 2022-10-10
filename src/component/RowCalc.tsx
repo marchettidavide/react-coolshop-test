@@ -21,12 +21,11 @@ class RowCalc extends React.Component<MyProps, MyState> {
         this.state = {
             obj: this.props.obj
         }
-
     }
 
-    componentWillReceiveProps(nextProps: any) {
-        this.state = {
-            obj: nextProps.obj
+    componentDidUpdate(prevProps:any) {
+        if (this.props.obj !== prevProps.obj) {
+            this.setState({obj:this.props.obj})
         }
     }
 
